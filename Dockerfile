@@ -4,6 +4,6 @@ WORKDIR /app
 
 COPY . /app
 
-RUN gradle installDist
+RUN gradle bootJar
 
-CMD ./build/install/app/bin/app
+CMD java -jar build/libs/*.jar
