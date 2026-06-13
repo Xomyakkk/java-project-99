@@ -1,6 +1,7 @@
 package hexlet.code.app.controller;
 
 import hexlet.code.app.dto.CreateUserDto;
+import hexlet.code.app.dto.LoginRequestDto;
 import hexlet.code.app.dto.UpdateUserDto;
 import hexlet.code.app.model.User;
 import hexlet.code.app.repository.UserRepository;
@@ -10,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,12 +40,29 @@ class UserControllerTest {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     private ObjectMapper objectMapper = new ObjectMapper();
 
     @BeforeEach
     void setUp() {
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
         userRepository.deleteAll();
+    }
+
+    private String getAuthToken(String email, String password) throws Exception {
+        LoginRequestDto loginDto = new LoginRequestDto();
+        loginDto.setUsername(email);
+        loginDto.setPassword(password);
+
+        return mockMvc.perform(post("/api/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(loginDto)))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
     }
 
     @Test
@@ -56,8 +75,10 @@ class UserControllerTest {
     @Test
     void testGetUserById() throws Exception {
         User user = createTestUser("test@example.com", "Test", "User");
+        String token = getAuthToken("test@example.com", "password123");
 
-        mockMvc.perform(get("/api/users/{id}", user.getId()))
+        mockMvc.perform(get("/api/users/{id}", user.getId())
+                        .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(user.getId()))
                 .andExpect(jsonPath("$.email").value("test@example.com"))
@@ -118,12 +139,14 @@ class UserControllerTest {
     @Test
     void testUpdateUser() throws Exception {
         User user = createTestUser("old@example.com", "Old", "Name");
+        String token = getAuthToken("old@example.com", "password123");
 
         UpdateUserDto dto = new UpdateUserDto();
         dto.setEmail("new@example.com");
         dto.setPassword("newpassword");
 
         mockMvc.perform(put("/api/users/{id}", user.getId())
+                        .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isOk())
@@ -137,11 +160,13 @@ class UserControllerTest {
     @Test
     void testPartialUpdateUser() throws Exception {
         User user = createTestUser("test@example.com", "First", "Last");
+        String token = getAuthToken("test@example.com", "password123");
 
         UpdateUserDto dto = new UpdateUserDto();
         dto.setFirstName("Updated");
 
         mockMvc.perform(put("/api/users/{id}", user.getId())
+                        .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isOk())
@@ -154,8 +179,10 @@ class UserControllerTest {
     @Test
     void testDeleteUser() throws Exception {
         User user = createTestUser("delete@example.com", "Delete", "User");
+        String token = getAuthToken("delete@example.com", "password123");
 
-        mockMvc.perform(delete("/api/users/{id}", user.getId()))
+        mockMvc.perform(delete("/api/users/{id}", user.getId())
+                        .header("Authorization", "Bearer " + token))
                 .andExpect(status().isNoContent());
 
         assertNull(userRepository.findById(user.getId()).orElse(null));
@@ -195,7 +222,7 @@ class UserControllerTest {
         user.setEmail(email);
         user.setFirstName(firstName);
         user.setLastName(lastName);
-        user.setPassword("password123");
+        user.setPassword(passwordEncoder.encode("password123"));
         return userRepository.save(user);
     }
 }

@@ -6,6 +6,8 @@ import hexlet.code.app.dto.UserDto;
 import hexlet.code.app.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -46,12 +48,29 @@ public class UserController {
 
     @PutMapping("/{id}")
     public UserDto updateUser(@PathVariable Long id, @Valid @RequestBody UpdateUserDto dto) {
+        checkAccess(id);
         return userService.updateUser(id, dto);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteUser(@PathVariable Long id) {
+        checkAccess(id);
         userService.deleteUser(id);
+    }
+
+    private void checkAccess(Long userId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentEmail = authentication.getName();
+        UserDto user = userService.getUserById(userId);
+        if (!user.getEmail().equals(currentEmail)) {
+            throw new ForbiddenException("Access denied");
+        }
+    }
+
+    public static class ForbiddenException extends RuntimeException {
+        public ForbiddenException(String message) {
+            super(message);
+        }
     }
 }
