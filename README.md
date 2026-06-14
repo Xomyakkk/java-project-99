@@ -8,8 +8,8 @@
 [![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=Xomyakkk_java-project-99&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=Xomyakkk_java-project-99)
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=Xomyakkk_java-project-99&metric=sqale_index)](https://sonarcloud.io/summary/new_code?id=Xomyakkk_java-project-99)
 [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=Xomyakkk_java-project-99&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=Xomyakkk_java-project-99)
-[![Security Hotspots](https://sonarcloud.io/api/project_badges/measure?project=Xomyakkk_java-project-99&metric=security_hotspots_density)](https://sonarcloud.io/summary/new_code?id=Xomyakkk_java-project-99)
-[![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=Xomyakkk_java-project-99&metric=technical_debt)](https://sonarcloud.io/summary/new_code?id=Xomyakkk_java-project-99)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=Xomyakkk_java-project-99&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=Xomyakkk_java-project-99)
+[![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=Xomyakkk_java-project-99&metric=sqale_index)](https://sonarcloud.io/summary/new_code?id=Xomyakkk_java-project-99)
 [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=Xomyakkk_java-project-99&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=Xomyakkk_java-project-99)
 
 Проект: https://java-project-99-pu4a.onrender.com
