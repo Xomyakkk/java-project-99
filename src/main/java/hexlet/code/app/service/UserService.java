@@ -4,6 +4,7 @@ import hexlet.code.app.dto.CreateUserDto;
 import hexlet.code.app.dto.UpdateUserDto;
 import hexlet.code.app.dto.UserDto;
 import hexlet.code.app.model.User;
+import hexlet.code.app.repository.TaskRepository;
 import hexlet.code.app.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -16,10 +17,14 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final TaskRepository taskRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository,
+                       TaskRepository taskRepository,
+                       PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.taskRepository = taskRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -70,6 +75,14 @@ public class UserService {
 
     @Transactional
     public void deleteUser(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (taskRepository.existsByAssignee(user)) {
+            throw new hexlet.code.app.controller.UserController.ForbiddenException(
+                    "Cannot delete user with assigned tasks");
+        }
+
         userRepository.deleteById(id);
     }
 

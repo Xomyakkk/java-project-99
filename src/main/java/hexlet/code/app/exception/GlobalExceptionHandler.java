@@ -36,4 +36,12 @@ public class GlobalExceptionHandler {
         errors.put("error", ex.getMessage());
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errors);
     }
+
+    @ExceptionHandler(hexlet.code.app.controller.TaskStatusController.ForbiddenException.class)
+    public ResponseEntity<Map<String, String>> handleTaskStatusForbiddenException(
+            hexlet.code.app.controller.TaskStatusController.ForbiddenException ex) {
+        Map<String, String> errors = new HashMap<>();
+        errors.put("error", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errors);
+    }
 }

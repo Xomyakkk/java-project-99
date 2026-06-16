@@ -58,4 +58,10 @@ public class TaskStatusController {
     public void deleteTaskStatus(@PathVariable Long id) {
         taskStatusService.deleteTaskStatus(id);
     }
+
+    public static class ForbiddenException extends RuntimeException {
+        public ForbiddenException(String message) {
+            super(message);
+        }
+    }
 }

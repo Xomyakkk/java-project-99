@@ -4,6 +4,7 @@ import hexlet.code.app.dto.CreateTaskStatusDto;
 import hexlet.code.app.dto.TaskStatusDto;
 import hexlet.code.app.dto.UpdateTaskStatusDto;
 import hexlet.code.app.model.TaskStatus;
+import hexlet.code.app.repository.TaskRepository;
 import hexlet.code.app.repository.TaskStatusRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,9 +16,11 @@ import java.util.stream.Collectors;
 public class TaskStatusService {
 
     private final TaskStatusRepository taskStatusRepository;
+    private final TaskRepository taskRepository;
 
-    public TaskStatusService(TaskStatusRepository taskStatusRepository) {
+    public TaskStatusService(TaskStatusRepository taskStatusRepository, TaskRepository taskRepository) {
         this.taskStatusRepository = taskStatusRepository;
+        this.taskRepository = taskRepository;
     }
 
     public List<TaskStatusDto> getAllTaskStatuses() {
@@ -65,6 +68,14 @@ public class TaskStatusService {
 
     @Transactional
     public void deleteTaskStatus(Long id) {
+        TaskStatus taskStatus = taskStatusRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("TaskStatus not found"));
+
+        if (taskRepository.existsByTaskStatus(taskStatus)) {
+            throw new hexlet.code.app.controller.TaskStatusController.ForbiddenException(
+                    "Cannot delete status with associated tasks");
+        }
+
         taskStatusRepository.deleteById(id);
     }
 
