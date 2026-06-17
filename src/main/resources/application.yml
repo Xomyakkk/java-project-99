@@ -8,3 +8,7 @@ spring:
 jwt:
   secret: "my-super-secret-key-that-is-at-least-256-bits-long-for-hs256"
   expiration: 86400000
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html

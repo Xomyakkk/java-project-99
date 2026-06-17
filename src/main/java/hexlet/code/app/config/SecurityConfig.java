@@ -53,7 +53,10 @@ public class SecurityConfig {
                                 "/favicon.ico",
                                 "/welcome",
                                 "/api/login",
-                                "/h2-console/**"
+                                "/h2-console/**",
+                                "/swagger-ui.html",
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

@@ -1,18 +1,23 @@
 package hexlet.code.app.service;
 
 import hexlet.code.app.dto.CreateTaskDto;
+import hexlet.code.app.dto.LabelDto;
 import hexlet.code.app.dto.TaskDto;
 import hexlet.code.app.dto.UpdateTaskDto;
+import hexlet.code.app.model.Label;
 import hexlet.code.app.model.Task;
 import hexlet.code.app.model.TaskStatus;
 import hexlet.code.app.model.User;
+import hexlet.code.app.repository.LabelRepository;
 import hexlet.code.app.repository.TaskRepository;
 import hexlet.code.app.repository.TaskStatusRepository;
 import hexlet.code.app.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -21,13 +26,16 @@ public class TaskService {
     private final TaskRepository taskRepository;
     private final TaskStatusRepository taskStatusRepository;
     private final UserRepository userRepository;
+    private final LabelRepository labelRepository;
 
     public TaskService(TaskRepository taskRepository,
                        TaskStatusRepository taskStatusRepository,
-                       UserRepository userRepository) {
+                       UserRepository userRepository,
+                       LabelRepository labelRepository) {
         this.taskRepository = taskRepository;
         this.taskStatusRepository = taskStatusRepository;
         this.userRepository = userRepository;
+        this.labelRepository = labelRepository;
     }
 
     public List<TaskDto> getAllTasks() {
@@ -59,6 +67,16 @@ public class TaskService {
             task.setAssignee(assignee);
         }
 
+        if (dto.getLabelIds() != null && !dto.getLabelIds().isEmpty()) {
+            Set<Label> labels = new HashSet<>();
+            for (Long labelId : dto.getLabelIds()) {
+                Label label = labelRepository.findById(labelId)
+                        .orElseThrow(() -> new RuntimeException("Label not found"));
+                labels.add(label);
+            }
+            task.setLabels(labels);
+        }
+
         Task saved = taskRepository.save(task);
         return toDto(saved);
     }
@@ -87,6 +105,15 @@ public class TaskService {
                     .orElseThrow(() -> new RuntimeException("User not found"));
             task.setAssignee(assignee);
         }
+        if (dto.getLabelIds() != null) {
+            Set<Label> labels = new HashSet<>();
+            for (Long labelId : dto.getLabelIds()) {
+                Label label = labelRepository.findById(labelId)
+                        .orElseThrow(() -> new RuntimeException("Label not found"));
+                labels.add(label);
+            }
+            task.setLabels(labels);
+        }
 
         Task updated = taskRepository.save(task);
         return toDto(updated);
@@ -98,6 +125,10 @@ public class TaskService {
     }
 
     private TaskDto toDto(Task task) {
+        List<LabelDto> labelDtos = task.getLabels().stream()
+                .map(label -> new LabelDto(label.getId(), label.getName(), label.getCreatedAt()))
+                .collect(Collectors.toList());
+
         return new TaskDto(
                 task.getId(),
                 task.getIndex(),
@@ -105,7 +136,8 @@ public class TaskService {
                 task.getAssignee() != null ? task.getAssignee().getId() : null,
                 task.getName(),
                 task.getDescription(),
-                task.getTaskStatus().getSlug()
+                task.getTaskStatus().getSlug(),
+                labelDtos
         );
     }
 }

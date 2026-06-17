@@ -29,6 +29,7 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-security")
 	implementation("org.springframework.security:spring-security-crypto")
 	implementation("io.jsonwebtoken:jjwt-api:0.12.3")
+	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.4")
 	runtimeOnly("com.h2database:h2")
 	runtimeOnly("org.postgresql:postgresql")
 	runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.3")
