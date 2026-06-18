@@ -10,8 +10,10 @@ import hexlet.code.app.model.TaskStatus;
 import hexlet.code.app.model.User;
 import hexlet.code.app.repository.LabelRepository;
 import hexlet.code.app.repository.TaskRepository;
+import hexlet.code.app.repository.TaskSpecification;
 import hexlet.code.app.repository.TaskStatusRepository;
 import hexlet.code.app.repository.UserRepository;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,6 +42,27 @@ public class TaskService {
 
     public List<TaskDto> getAllTasks() {
         return taskRepository.findAll().stream()
+                .map(this::toDto)
+                .collect(Collectors.toList());
+    }
+
+    public List<TaskDto> getTasksFiltered(String titleCont, Long assigneeId, String status, Long labelId) {
+        Specification<Task> spec = Specification.allOf();
+
+        if (titleCont != null && !titleCont.isBlank()) {
+            spec = spec.and(TaskSpecification.titleContains(titleCont));
+        }
+        if (assigneeId != null) {
+            spec = spec.and(TaskSpecification.hasAssigneeId(assigneeId));
+        }
+        if (status != null && !status.isBlank()) {
+            spec = spec.and(TaskSpecification.hasStatusSlug(status));
+        }
+        if (labelId != null) {
+            spec = spec.and(TaskSpecification.hasLabelId(labelId));
+        }
+
+        return taskRepository.findAll(spec).stream()
                 .map(this::toDto)
                 .collect(Collectors.toList());
     }
