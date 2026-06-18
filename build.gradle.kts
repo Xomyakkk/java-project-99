@@ -4,6 +4,7 @@ plugins {
 	id("io.spring.dependency-management") version "1.1.7"
 	id("org.sonarqube") version "7.3.1.8318"
 	id("io.freefair.lombok") version "8.12.1"
+	id("io.sentry.jvm.gradle") version "6.12.0"
 	checkstyle
 	jacoco
 }
@@ -71,4 +72,11 @@ tasks.sonar {
 
 dependencyLocking {
 	lockAllConfigurations()
+}
+
+sentry {
+	includeSourceContext.set(true)
+	org.set("hexlet-e4")
+	projectName.set("java")
+	authToken.set(System.getenv("SENTRY_AUTH_TOKEN"))
 }
