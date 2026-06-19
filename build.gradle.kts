@@ -18,6 +18,11 @@ java {
 	}
 }
 
+ repositories {
+    mavenCentral()
+    gradlePluginPortal()
+}
+
 repositories {
 	mavenCentral()
 }
