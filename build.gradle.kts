@@ -80,7 +80,8 @@ dependencyLocking {
 }
 
 sentry {
-	includeSourceContext.set(true)
+	includeSourceContext.set(System.getenv("SENTRY_AUTH_TOKEN") != null)
+	autoUploadSourceContext.set(System.getenv("SENTRY_AUTH_TOKEN") != null)
 	org.set("hexlet-e4")
 	projectName.set("java")
 	authToken.set(System.getenv("SENTRY_AUTH_TOKEN"))
