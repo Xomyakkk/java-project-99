@@ -1,5 +1,6 @@
 package hexlet.code.app.dto;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -25,5 +26,7 @@ public class CreateTaskDto {
     @NotBlank
     private String status;
 
+    @JsonProperty("taskLabelIds")
+    @JsonAlias("labelIds")
     private List<Long> labelIds;
 }

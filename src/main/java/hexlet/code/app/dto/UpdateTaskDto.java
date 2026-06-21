@@ -1,5 +1,6 @@
 package hexlet.code.app.dto;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,5 +18,7 @@ public class UpdateTaskDto {
     private String title;
     private String content;
     private String status;
+    @JsonProperty("taskLabelIds")
+    @JsonAlias("labelIds")
     private List<Long> labelIds;
 }
