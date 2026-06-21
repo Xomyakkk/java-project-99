@@ -151,11 +151,15 @@ public class TaskService {
         List<LabelDto> labelDtos = task.getLabels().stream()
                 .map(label -> new LabelDto(label.getId(), label.getName(), label.getCreatedAt()))
                 .collect(Collectors.toList());
+        List<Long> taskLabelIds = task.getLabels().stream()
+                .map(Label::getId)
+                .collect(Collectors.toList());
 
         return new TaskDto(
                 task.getId(),
                 task.getIndex(),
                 task.getCreatedAt(),
+                taskLabelIds,
                 task.getAssignee() != null ? task.getAssignee().getId() : null,
                 task.getName(),
                 task.getDescription(),
