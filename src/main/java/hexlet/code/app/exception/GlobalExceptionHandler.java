@@ -47,9 +47,9 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errors);
     }
 
-    @ExceptionHandler(hexlet.code.app.controller.UserController.ForbiddenException.class)
+    @ExceptionHandler(ForbiddenOperationException.class)
     public ResponseEntity<Map<String, String>> handleForbiddenException(
-            hexlet.code.app.controller.UserController.ForbiddenException ex) {
+            ForbiddenOperationException ex) {
         log.warn("User operation forbidden", ex);
         Map<String, String> errors = new HashMap<>();
         errors.put("error", ex.getMessage());

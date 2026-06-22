@@ -3,6 +3,7 @@ package hexlet.code.app.service;
 import hexlet.code.app.dto.CreateUserDto;
 import hexlet.code.app.dto.UpdateUserDto;
 import hexlet.code.app.dto.UserDto;
+import hexlet.code.app.exception.ForbiddenOperationException;
 import hexlet.code.app.model.User;
 import hexlet.code.app.repository.TaskRepository;
 import hexlet.code.app.repository.UserRepository;
@@ -79,7 +80,7 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         if (taskRepository.existsByAssignee(user)) {
-            throw new hexlet.code.app.controller.UserController.ForbiddenException(
+            throw new ForbiddenOperationException(
                     "Cannot delete user with assigned tasks");
         }
 
