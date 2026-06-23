@@ -406,7 +406,8 @@ class TaskControllerTest {
     }
 
     private Task createTestTask(String title, String description) {
-        TaskStatus taskStatus = createTestTaskStatus("ToReview", "to_review");
+        TaskStatus taskStatus = taskStatusRepository.findBySlug("to_review")
+                .orElseGet(() -> createTestTaskStatus("ToReview", "to_review"));
         Task task = new Task();
         task.setName(title);
         task.setDescription(description);
