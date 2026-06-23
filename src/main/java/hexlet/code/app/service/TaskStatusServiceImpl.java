@@ -3,8 +3,8 @@ package hexlet.code.app.service;
 import hexlet.code.app.dto.CreateTaskStatusDto;
 import hexlet.code.app.dto.TaskStatusDto;
 import hexlet.code.app.dto.UpdateTaskStatusDto;
+import hexlet.code.app.mapper.TaskStatusMapper;
 import hexlet.code.app.model.TaskStatus;
-import hexlet.code.app.repository.TaskRepository;
 import hexlet.code.app.repository.TaskStatusRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,17 +16,17 @@ import java.util.stream.Collectors;
 public class TaskStatusServiceImpl implements TaskStatusService {
 
     private final TaskStatusRepository taskStatusRepository;
-    private final TaskRepository taskRepository;
+    private final TaskStatusMapper taskStatusMapper;
 
-    public TaskStatusServiceImpl(TaskStatusRepository taskStatusRepository, TaskRepository taskRepository) {
+    public TaskStatusServiceImpl(TaskStatusRepository taskStatusRepository, TaskStatusMapper taskStatusMapper) {
         this.taskStatusRepository = taskStatusRepository;
-        this.taskRepository = taskRepository;
+        this.taskStatusMapper = taskStatusMapper;
     }
 
     @Override
     public List<TaskStatusDto> getAllTaskStatuses() {
         return taskStatusRepository.findAll().stream()
-                .map(this::toDto)
+                .map(taskStatusMapper::toDto)
                 .collect(Collectors.toList());
     }
 
@@ -34,24 +34,22 @@ public class TaskStatusServiceImpl implements TaskStatusService {
     public TaskStatusDto getTaskStatusById(Long id) {
         TaskStatus taskStatus = taskStatusRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("TaskStatus not found"));
-        return toDto(taskStatus);
+        return taskStatusMapper.toDto(taskStatus);
     }
 
     @Override
     public TaskStatusDto getTaskStatusBySlug(String slug) {
         TaskStatus taskStatus = taskStatusRepository.findBySlug(slug)
                 .orElseThrow(() -> new RuntimeException("TaskStatus not found"));
-        return toDto(taskStatus);
+        return taskStatusMapper.toDto(taskStatus);
     }
 
     @Override
     @Transactional
     public TaskStatusDto createTaskStatus(CreateTaskStatusDto dto) {
-        TaskStatus taskStatus = new TaskStatus();
-        taskStatus.setName(dto.getName());
-        taskStatus.setSlug(dto.getSlug());
+        TaskStatus taskStatus = taskStatusMapper.toEntity(dto);
         TaskStatus saved = taskStatusRepository.save(taskStatus);
-        return toDto(saved);
+        return taskStatusMapper.toDto(saved);
     }
 
     @Override
@@ -60,37 +58,14 @@ public class TaskStatusServiceImpl implements TaskStatusService {
         TaskStatus taskStatus = taskStatusRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("TaskStatus not found"));
 
-        if (dto.getName() != null) {
-            taskStatus.setName(dto.getName());
-        }
-        if (dto.getSlug() != null) {
-            taskStatus.setSlug(dto.getSlug());
-        }
-
+        taskStatusMapper.update(dto, taskStatus);
         TaskStatus updated = taskStatusRepository.save(taskStatus);
-        return toDto(updated);
+        return taskStatusMapper.toDto(updated);
     }
 
     @Override
     @Transactional
     public void deleteTaskStatus(Long id) {
-        TaskStatus taskStatus = taskStatusRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("TaskStatus not found"));
-
-        if (taskRepository.existsByTaskStatus(taskStatus)) {
-            throw new hexlet.code.app.controller.TaskStatusController.ForbiddenException(
-                    "Cannot delete status with associated tasks");
-        }
-
         taskStatusRepository.deleteById(id);
-    }
-
-    private TaskStatusDto toDto(TaskStatus taskStatus) {
-        return new TaskStatusDto(
-                taskStatus.getId(),
-                taskStatus.getName(),
-                taskStatus.getSlug(),
-                taskStatus.getCreatedAt()
-        );
     }
 }

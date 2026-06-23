@@ -27,7 +27,7 @@ public class Label {
     @EqualsAndHashCode.Include
     private Long id;
 
-    @Column(name = "name")
+    @Column(name = "name", nullable = false, unique = true, length = 1000)
     @NotBlank
     @Size(min = 3, max = 1000)
     @EqualsAndHashCode.Include

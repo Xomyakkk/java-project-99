@@ -1,6 +1,7 @@
 package hexlet.code.app.exception;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -47,31 +48,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errors);
     }
 
-    @ExceptionHandler(ForbiddenOperationException.class)
-    public ResponseEntity<Map<String, String>> handleForbiddenException(
-            ForbiddenOperationException ex) {
-        log.warn("User operation forbidden", ex);
-        Map<String, String> errors = new HashMap<>();
-        errors.put("error", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errors);
-    }
-
-    @ExceptionHandler(hexlet.code.app.controller.LabelController.ForbiddenException.class)
-    public ResponseEntity<Map<String, String>> handleLabelForbiddenException(
-            hexlet.code.app.controller.LabelController.ForbiddenException ex) {
-        log.warn("Label operation forbidden", ex);
-        Map<String, String> errors = new HashMap<>();
-        errors.put("error", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errors);
-    }
-
-    @ExceptionHandler(hexlet.code.app.controller.TaskStatusController.ForbiddenException.class)
-    public ResponseEntity<Map<String, String>> handleTaskStatusForbiddenException(
-            hexlet.code.app.controller.TaskStatusController.ForbiddenException ex) {
-        log.warn("Task status operation forbidden", ex);
-        Map<String, String> errors = new HashMap<>();
-        errors.put("error", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errors);
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<Map<String, String>> handleDataIntegrityViolationException(
+            DataIntegrityViolationException ex) {
+        log.warn("Data integrity violation", ex);
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(Map.of("error", "Data integrity violation"));
     }
 
     @ExceptionHandler(Exception.class)

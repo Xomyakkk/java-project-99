@@ -34,13 +34,13 @@ public class User {
     @Column(name = "last_name")
     private String lastName;
 
-    @Column(name = "email")
+    @Column(name = "email", nullable = false, unique = true)
     @Email
     @NotBlank
     @EqualsAndHashCode.Include
     private String email;
 
-    @Column(name = "password")
+    @Column(name = "password", nullable = false)
     @NotBlank
     @Size(min = 3)
     private String password;

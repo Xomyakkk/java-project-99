@@ -26,13 +26,13 @@ public class TaskStatus {
     @EqualsAndHashCode.Include
     private Long id;
 
-    @Column(name = "name")
+    @Column(name = "name", nullable = false)
     @NotBlank
     @Size(min = 1)
     @EqualsAndHashCode.Include
     private String name;
 
-    @Column(name = "slug")
+    @Column(name = "slug", nullable = false, unique = true)
     @NotBlank
     @Size(min = 1)
     @EqualsAndHashCode.Include

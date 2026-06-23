@@ -20,7 +20,6 @@ import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -33,7 +32,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
-@Transactional
 class LabelControllerTest {
 
     private MockMvc mockMvc;
@@ -193,7 +191,6 @@ class LabelControllerTest {
     }
 
     @Test
-    @org.junit.jupiter.api.Disabled("TODO: fix flaky test - H2 issue with M2M relationship and deleteAll")
     void testDeleteLabelWithAssociatedTask() throws Exception {
         createTestUser("test@example.com");
         String token = getAuthToken("test@example.com", "password123");
@@ -213,7 +210,8 @@ class LabelControllerTest {
 
         mockMvc.perform(delete("/api/labels/{id}", label.getId())
                         .header("Authorization", "Bearer " + token))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.error").value("Data integrity violation"));
     }
 
     @Test

@@ -58,10 +58,4 @@ public class LabelController {
     public void deleteLabel(@PathVariable Long id) {
         labelService.deleteLabel(id);
     }
-
-    public static class ForbiddenException extends RuntimeException {
-        public ForbiddenException(String message) {
-            super(message);
-        }
-    }
 }

@@ -37,7 +37,7 @@ public class Task {
     @EqualsAndHashCode.Include
     private Long id;
 
-    @Column(name = "name")
+    @Column(name = "name", nullable = false)
     @NotBlank
     @Size(min = 1)
     @EqualsAndHashCode.Include
@@ -50,7 +50,7 @@ public class Task {
     private String description;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "task_status_id")
+    @JoinColumn(name = "task_status_id", nullable = false)
     @NotNull
     private TaskStatus taskStatus;
 
