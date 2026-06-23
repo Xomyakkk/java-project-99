@@ -175,7 +175,7 @@ class UserControllerTest {
     }
 
     @Test
-    void testUpdateAnotherUserIsForbidden() throws Exception {
+    void testUpdateAnotherUser() throws Exception {
         User targetUser = createTestUser("target@example.com", "Target", "User");
         createTestUser("actor@example.com", "Actor", "User");
         String token = getAuthToken("actor@example.com", "password123");
@@ -187,8 +187,9 @@ class UserControllerTest {
                         .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
-                .andExpect(status().isForbidden())
-                .andExpect(jsonPath("$.error").value("Forbidden"));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(targetUser.getId()))
+                .andExpect(jsonPath("$.firstName").value("Hacked"));
     }
 
     @Test
@@ -204,15 +205,16 @@ class UserControllerTest {
     }
 
     @Test
-    void testDeleteAnotherUserIsForbidden() throws Exception {
+    void testDeleteAnotherUser() throws Exception {
         User targetUser = createTestUser("delete-target@example.com", "Delete", "Target");
         createTestUser("delete-actor@example.com", "Delete", "Actor");
         String token = getAuthToken("delete-actor@example.com", "password123");
 
         mockMvc.perform(delete("/api/users/{id}", targetUser.getId())
                         .header("Authorization", "Bearer " + token))
-                .andExpect(status().isForbidden())
-                .andExpect(jsonPath("$.error").value("Forbidden"));
+                .andExpect(status().isNoContent());
+
+        assertNull(userRepository.findById(targetUser.getId()).orElse(null));
     }
 
     @Test

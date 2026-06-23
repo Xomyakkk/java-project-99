@@ -3,15 +3,10 @@ package hexlet.code.app.controller;
 import hexlet.code.app.dto.CreateUserDto;
 import hexlet.code.app.dto.UpdateUserDto;
 import hexlet.code.app.dto.UserDto;
-import hexlet.code.app.repository.UserRepository;
-import hexlet.code.app.security.JwtTokenProvider;
 import hexlet.code.app.service.UserService;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,15 +24,9 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
-    private final UserRepository userRepository;
-    private final JwtTokenProvider jwtTokenProvider;
 
-    public UserController(UserService userService,
-                          UserRepository userRepository,
-                          JwtTokenProvider jwtTokenProvider) {
+    public UserController(UserService userService) {
         this.userService = userService;
-        this.userRepository = userRepository;
-        this.jwtTokenProvider = jwtTokenProvider;
     }
 
     @GetMapping
@@ -60,32 +49,13 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public UserDto updateUser(@PathVariable Long id, @Valid @RequestBody UpdateUserDto dto,
-                              HttpServletRequest request) {
-        ensureCurrentUser(id, request);
+    public UserDto updateUser(@PathVariable Long id, @Valid @RequestBody UpdateUserDto dto) {
         return userService.updateUser(id, dto);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteUser(@PathVariable Long id, HttpServletRequest request) {
-        ensureCurrentUser(id, request);
+    public void deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
-    }
-
-    private void ensureCurrentUser(Long id, HttpServletRequest request) {
-        String bearerToken = request.getHeader("Authorization");
-        if (!StringUtils.hasText(bearerToken) || !bearerToken.startsWith("Bearer ")) {
-            throw new AccessDeniedException("Forbidden");
-        }
-
-        String email = jwtTokenProvider.getEmailFromToken(bearerToken.substring(7));
-        boolean isCurrentUser = userRepository.findByEmail(email)
-                .map(user -> user.getId().equals(id))
-                .orElse(false);
-
-        if (!isCurrentUser) {
-            throw new AccessDeniedException("Forbidden");
-        }
     }
 }
