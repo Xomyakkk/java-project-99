@@ -13,6 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
@@ -41,11 +42,14 @@ class UserControllerTest {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    private ObjectMapper objectMapper = new ObjectMapper();
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @BeforeEach
     void setUp() {
-        mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+        mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
+                .apply(SecurityMockMvcConfigurers.springSecurity())
+                .build();
         userRepository.deleteAll();
     }
 
@@ -187,9 +191,10 @@ class UserControllerTest {
                         .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(targetUser.getId()))
-                .andExpect(jsonPath("$.firstName").value("Hacked"));
+                .andExpect(status().isForbidden());
+
+        User unchangedUser = userRepository.findById(targetUser.getId()).orElseThrow();
+        assertTrue(unchangedUser.getFirstName().equals("Target"));
     }
 
     @Test
@@ -212,9 +217,9 @@ class UserControllerTest {
 
         mockMvc.perform(delete("/api/users/{id}", targetUser.getId())
                         .header("Authorization", "Bearer " + token))
-                .andExpect(status().isNoContent());
+                .andExpect(status().isForbidden());
 
-        assertNull(userRepository.findById(targetUser.getId()).orElse(null));
+        assertNotNull(userRepository.findById(targetUser.getId()).orElse(null));
     }
 
     @Test
